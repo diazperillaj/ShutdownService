@@ -83,6 +83,33 @@ Toda la configuración sensible va en un archivo `.env`, que nunca se sube al re
 - Las peticiones de Alexa se verifican con la firma de Amazon y se restringen a una cuenta autorizada.
 - La base de datos no está expuesta fuera de la red interna de Docker.
 
+## Desarrollo
+
+Todo corre en Docker. Desde la carpeta `deploy/`, con un `.env` creado a partir de `.env.example`:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+```
+
+Crear el usuario del panel (solo se permite uno):
+
+```bash
+docker compose exec api python -m app.cli create-user <usuario>
+```
+
+Generar un valor para `AGENT_TOKEN`:
+
+```bash
+docker compose run --rm --no-deps api python -m app.cli gen-token
+```
+
+Ejecutar las pruebas del backend:
+
+```bash
+docker build --target test -t shutdownservice-api-test ../backend
+docker run --rm shutdownservice-api-test
+```
+
 ## Instalación
 
 Pendiente: se documentará al completar cada componente.

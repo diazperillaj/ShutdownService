@@ -1,0 +1,15 @@
+# Desarrollo local, sin proxy:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+services:
+  api:
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      PUBLIC_ORIGIN: http://localhost:5173
+      COOKIE_SECURE: "false"
+      ENABLE_DOCS: "true"
+
+networks:
+  proxy:
+    external: false
+    name: shutdownservice-dev-proxy
