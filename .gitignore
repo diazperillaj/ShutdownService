@@ -1,0 +1,43 @@
+# Documentación interna (no se publica)
+ESPECIFICACION.md
+
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+**/appsettings.Production.json
+**/appsettings.Local.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / frontend
+node_modules/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+
+# .NET
+bin/
+obj/
+publish/
+*.user
+.vs/
+
+# Editores y sistema
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Logs y datos locales
+logs/
+*.log
