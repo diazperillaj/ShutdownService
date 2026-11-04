@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Los avisos de nulabilidad son errores: es la clase de fallo que aquí apagaría el PC por error. -->
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <NeutralLanguage>es</NeutralLanguage>
+  </PropertyGroup>
+</Project>

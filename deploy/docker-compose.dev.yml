@@ -6,7 +6,7 @@ name: shutdownservice-dev
 services:
   api:
     ports:
-      - "127.0.0.1:${PUERTO_API_DEV:-8000}:8000"   # si el 8000 está ocupado: PUERTO_API_DEV en el .env
+      - "127.0.0.1:${API_DEV_PORT:-8000}:8000"   # si el 8000 está ocupado: API_DEV_PORT en el .env
     environment:
       PUBLIC_ORIGIN: http://localhost:5173
       COOKIE_SECURE: "false"

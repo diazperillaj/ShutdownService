@@ -110,9 +110,53 @@ docker build --target test -t shutdownservice-api-test ../backend
 docker run --rm shutdownservice-api-test
 ```
 
+Ejecutar las pruebas del agente (temporizador y protocolo), desde `agent/`:
+
+```bash
+docker build --target test -t apagadopc-agent-test .
+```
+
+```bash
+docker run --rm apagadopc-agent-test
+```
+
 ## Instalación
 
-Pendiente: se documentará al completar cada componente.
+### Agente de Windows
+
+Compilar el ejecutable, desde `agent/`. Con Docker no hace falta instalar el SDK de .NET:
+
+```bash
+docker build --target export --output publish .
+```
+
+Si tienes el SDK, desde PowerShell es más rápido: `.\build.ps1 -Local`
+
+Instalar el servicio en una consola de PowerShell **como Administrador**, desde `agent/`:
+
+```powershell
+.\install.ps1 -ServerUrl wss://tu-dominio/ws/agent -Token (Read-Host 'Token')
+```
+
+El script copia el `.exe` a `C:\Program Files\ApagadoPC`, escribe la configuración en
+`C:\ProgramData\ApagadoPC\appsettings.json` con permisos solo para SYSTEM y Administradores,
+registra el servicio `ApagadoPcAgent` como LocalSystem con inicio automático diferido y lo deja
+reiniciándose solo si falla.
+
+Para que funcione hibernar, la hibernación tiene que estar activada en el PC:
+
+```powershell
+powercfg /h on
+```
+
+Los logs quedan en `C:\ProgramData\ApagadoPC\logs` y en el Visor de eventos, con origen
+`ApagadoPcAgent`.
+
+Para desinstalarlo: `.\uninstall.ps1` (con `-RemoveData` borra también la configuración y los logs).
+
+### Backend y panel
+
+Pendiente: se documentará al completar el despliegue.
 
 ## Licencia
 

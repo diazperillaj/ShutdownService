@@ -94,7 +94,8 @@ class AgentStateService:
             )
 
     async def update(self, **changes: Any) -> AgentSnapshot:
-        # Se guarda antes de exponer el nuevo estado; el lock evita que dos cambios se pisen.
+        # Se guarda antes de exponer el nuevo estado. El lock cubre también la publicación:
+        # evita que dos cambios se pisen y que el panel los reciba en otro orden.
         async with self._lock:
             snapshot = replace(self._snapshot, **changes)
             async with self._sessions() as db:
@@ -107,5 +108,6 @@ class AgentStateService:
                 row.execute_at = snapshot.pending.execute_at if snapshot.pending else None
                 await db.commit()
             self._snapshot = snapshot
-        self._broadcaster.publish(StatusEvent(data=snapshot.to_status()))
+            # publish no espera a nadie (encola y sigue), así que no retiene el lock.
+            self._broadcaster.publish(StatusEvent(data=snapshot.to_status()))
         return snapshot

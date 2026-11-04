@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Sin dependencias de Windows: así la lógica del temporizador y del protocolo
+       se puede probar en cualquier sistema (incluido el contenedor de compilación). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ApagadoPcAgent.Core</RootNamespace>
+  </PropertyGroup>
+
+</Project>

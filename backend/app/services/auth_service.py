@@ -7,7 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..core.config import Settings
 from ..core.constants import MIN_PASSWORD_LENGTH
 from ..core.database import utcnow
-from ..core.errors import AppError, Conflict, InvalidCredentials, InvalidRequest, NotFound, TooManyAttempts
+from ..core.errors import (
+    AppError,
+    Conflict,
+    InvalidCredentials,
+    InvalidRequest,
+    NotFound,
+    TooManyAttempts,
+)
 from ..core.rate_limit import SlidingWindowLimiter
 from ..core.security import (
     burn_password_check,
@@ -87,6 +94,9 @@ class AuthService:
         user.locked_until = None
         if password_needs_rehash(user.password_hash):
             user.password_hash = await asyncio.to_thread(hash_password, password)
+
+        # Aprovecha el login para limpiar las sesiones vencidas; nada más las borra.
+        await self._sessions.delete_expired(now)
 
         token = new_session_token()
         self._sessions.add(

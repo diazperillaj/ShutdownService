@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,6 +42,11 @@ class SessionRepository:
 
     async def delete(self, session_id: int) -> None:
         await self._db.execute(delete(UserSession).where(UserSession.id == session_id))
+
+    async def delete_expired(self, now: datetime) -> int:
+        """Borra las sesiones vencidas. Devuelve cuántas eran."""
+        result = await self._db.execute(delete(UserSession).where(UserSession.expires_at <= now))
+        return result.rowcount or 0
 
     async def delete_for_user(self, user_id: int, *, except_id: int | None = None) -> None:
         statement = delete(UserSession).where(UserSession.user_id == user_id)

@@ -1,6 +1,13 @@
+from datetime import timedelta
+from pathlib import Path
+
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
 
 from app.api.deps import SESSION_COOKIE
+from app.core.database import utcnow
+from app.models import UserSession
 
 from ..constants import ORIGIN, PASSWORD, USERNAME
 
@@ -94,6 +101,29 @@ def test_change_password(logged_in: TestClient):
     )
     assert old.status_code == 401
     assert new.status_code == 200
+
+
+def test_login_purges_expired_sessions(client: TestClient, db_path: Path):
+    """Las sesiones vencidas no se acumulan: el siguiente login las borra."""
+    engine = create_engine(f"sqlite:///{db_path}")
+    with Session(engine) as db:
+        db.add(
+            UserSession(
+                token_hash="x" * 64,
+                user_id=1,
+                expires_at=utcnow() - timedelta(hours=1),
+            )
+        )
+        db.commit()
+
+    response = client.post("/api/auth/login", json={"username": USERNAME, "password": PASSWORD})
+    assert response.status_code == 200
+
+    with Session(engine) as db:
+        remaining = db.scalars(select(UserSession.token_hash)).all()
+    engine.dispose()
+    assert "x" * 64 not in remaining  # se borró la vencida
+    assert len(remaining) == 1  # queda solo la del login
 
 
 def test_docs_disabled_by_default(client: TestClient):

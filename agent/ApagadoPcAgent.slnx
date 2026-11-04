@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ApagadoPcAgent.Core/ApagadoPcAgent.Core.csproj" />
+    <Project Path="src/ApagadoPcAgent.Service/ApagadoPcAgent.Service.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ApagadoPcAgent.Core.Tests/ApagadoPcAgent.Core.Tests.csproj" />
+  </Folder>
+</Solution>
