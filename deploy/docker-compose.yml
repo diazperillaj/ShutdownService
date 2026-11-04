@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    networks: [internal]
+    networks: [interna]                  # sin puertos publicados
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -25,16 +25,19 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    networks: [internal, proxy]
+    networks:
+      interna: {}
+      proxy:
+        aliases: [shutdown-api]          # nombre único con el que el Caddy existente llega a la API
 
 networks:
-  # Red privada entre la API y Postgres; sin salida a internet.
-  internal:
+  # Red propia de esta app entre la API y Postgres; sin salida a internet.
+  interna:
     internal: true
-  # Red del reverse proxy existente.
+  # Red compartida del reverse proxy existente.
   proxy:
     external: true
-    name: ${PROXY_NETWORK:-caddy}
+    name: ${PROXY_NETWORK:-proxy}
 
 volumes:
   pgdata:

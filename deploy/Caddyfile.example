@@ -1,0 +1,18 @@
+# Bloque para el Caddyfile del reverse proxy compartido.
+# Requiere los snippets (registro) y (bloqueo) definidos en ese Caddyfile.
+# shutdown-api y shutdown-web son los alias de los contenedores en la red "proxy".
+
+tu-dominio.example {
+	import registro
+	import bloqueo
+	encode zstd gzip
+	header Strict-Transport-Security "max-age=31536000"
+
+	@api path /api/* /ws/* /alexa /health
+	handle @api {
+		reverse_proxy shutdown-api:8000
+	}
+	handle {
+		reverse_proxy shutdown-web:80
+	}
+}

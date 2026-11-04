@@ -108,6 +108,10 @@ class FakeAgent:
         self.ws.send_json(message)
 
     def __exit__(self, *exc: object) -> None:
+        # Cierra y espera a que el servidor registre la desconexión antes de que el cliente de
+        # pruebas cancele la tarea; si no, la escritura en la base de datos queda a medias.
+        self.ws.close(1000)
+        wait_until(lambda: not self._client.app.state.hub.snapshot.connected)
         self._cm.__exit__(None, None, None)
         if self._thread is not None:
             self._thread.join(timeout=2)

@@ -1,9 +1,12 @@
 # Desarrollo local, sin proxy:
 #   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# Usa otro nombre de proyecto para no compartir contenedores ni volúmenes con producción.
+name: shutdownservice-dev
+
 services:
   api:
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${PUERTO_API_DEV:-8000}:8000"   # si el 8000 está ocupado: PUERTO_API_DEV en el .env
     environment:
       PUBLIC_ORIGIN: http://localhost:5173
       COOKIE_SECURE: "false"

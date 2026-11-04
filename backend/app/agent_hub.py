@@ -117,6 +117,7 @@ class AgentHub:
         self._ws: WebSocket | None = None
         self._acks: dict[str, asyncio.Future[AckMessage]] = {}
         self._send_lock = asyncio.Lock()
+        self._update_lock = asyncio.Lock()
         self._subscribers: set[asyncio.Queue[dict[str, Any]]] = set()
         self._snapshot = AgentSnapshot()
 
@@ -263,20 +264,22 @@ class AgentHub:
         self._publish({"type": "history", "data": history_entry(entry)})
 
     async def _update(self, **changes: Any) -> None:
-        self._snapshot = replace(self._snapshot, **changes)
-        snap = self._snapshot
-        async with self._sessionmaker() as db:
-            row = await db.get(AgentState, 1)
-            if row is None:
-                row = AgentState(id=1)
-                db.add(row)
-            row.connected = snap.connected
-            row.last_seen_at = snap.last_seen_at
-            row.hostname = snap.hostname
-            row.agent_version = snap.agent_version
-            row.pending_action = snap.pending.action if snap.pending else None
-            row.execute_at = snap.pending.execute_at if snap.pending else None
-            await db.commit()
+        # Se guarda antes de exponer el nuevo estado; el lock evita que dos cambios se pisen.
+        async with self._update_lock:
+            snap = replace(self._snapshot, **changes)
+            async with self._sessionmaker() as db:
+                row = await db.get(AgentState, 1)
+                if row is None:
+                    row = AgentState(id=1)
+                    db.add(row)
+                row.connected = snap.connected
+                row.last_seen_at = snap.last_seen_at
+                row.hostname = snap.hostname
+                row.agent_version = snap.agent_version
+                row.pending_action = snap.pending.action if snap.pending else None
+                row.execute_at = snap.pending.execute_at if snap.pending else None
+                await db.commit()
+            self._snapshot = snap
         self._publish({"type": "status", "data": snap.to_api()})
 
     # --- Suscriptores del panel ---
