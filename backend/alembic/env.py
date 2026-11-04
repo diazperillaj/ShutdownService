@@ -7,7 +7,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app import models  # noqa: F401  (registra las tablas en Base.metadata)
-from app.db import Base
+from app.core.database import Base
 
 config = context.config
 if config.config_file_name is not None:
